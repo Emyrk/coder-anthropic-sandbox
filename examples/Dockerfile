@@ -21,12 +21,16 @@ USER root
 
 # Use apt's local-deb install so any dynamic dependencies (libc shims, etc.)
 # resolve from the Ubuntu archive instead of failing dpkg with unmet deps.
+# Upstream's .deb installs the binary at /usr/ant rather than /usr/bin/ant
+# (https://github.com/anthropics/anthropic-cli/issues), so symlink it onto
+# PATH before verifying. dpkg still owns the package for later upgrades.
 RUN set -eux; \
 	cd /tmp; \
 	curl -fSL -o ant.deb \
 		"https://github.com/anthropics/anthropic-cli/releases/download/v${ANT_VERSION}/ant_${ANT_VERSION}_linux_amd64.deb"; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends ./ant.deb; \
+	ln -sf /usr/ant /usr/local/bin/ant; \
 	rm -f ant.deb; \
 	apt-get clean; \
 	rm -rf /var/lib/apt/lists/*; \
