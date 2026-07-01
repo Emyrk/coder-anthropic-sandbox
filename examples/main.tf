@@ -12,14 +12,14 @@ terraform {
 data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
 
-# Docker image with the `ant` CLI installed. Build the sibling Dockerfile,
-# push to a registry you control, and override this on `coder templates push`
-# or via a tfvars file. Defaulted to an obvious placeholder so it fails fast
-# until you point it at your image.
+# Docker image with the `ant` CLI installed. Defaults to the reference image
+# built and pushed from the sibling Dockerfile
+# (docker.io/emyrk/coder-anthropic-sandbox). Override on `coder templates
+# push` or via a tfvars file to point at your own registry.
 variable "image" {
   type        = string
   description = "Docker image with the ant CLI pre-installed (built from ./Dockerfile)."
-  default     = "your-registry/coder-anthropic-sandbox:latest"
+  default     = "emyrk/coder-anthropic-sandbox:latest"
 }
 
 resource "coder_agent" "main" {
