@@ -11,7 +11,7 @@ response to a claimed Anthropic work item, the module:
 1. Declares five ephemeral `coder_parameter`s, one for each
    `ANTHROPIC_*` value the dispatcher passes per build.
 2. Exposes them on the agent as `coder_env` resources.
-3. Runs the configured inner command (default `ant beta:agent run`) at
+3. Runs the configured inner command (default `ant beta:worker run`) at
    agent start with those env vars set.
 4. Touches a done file when the command exits so the dispatcher can
    detect session completion.
@@ -29,17 +29,18 @@ module "anthropic" {
 }
 ```
 
-Then ensure your container/VM image has the `ant` CLI installed
-(`npm install -g @anthropic-ai/cli` or the v1.x install path your
-fleet uses). The module does not install `ant` for you; it only wires
-the env vars and runs `var.command`.
+Then ensure your container/VM image has the `ant` CLI installed. See
+[`examples/Dockerfile`](./examples/Dockerfile) for a reference image
+that installs `ant` from the upstream Debian package. The module does
+not install `ant` for you; it only wires the env vars and runs
+`var.command`.
 
 ## Inputs
 
 | Name              | Default                       | Description                                                                                   |
 |-------------------|-------------------------------|-----------------------------------------------------------------------------------------------|
 | `agent_id`        | required                      | ID of the `coder_agent` to wire.                                                              |
-| `command`         | `ant beta:agent run`          | Inner-side command run when a work item arrives.                                              |
+| `command`         | `ant beta:worker run`         | Inner-side command run when a work item arrives.                                              |
 | `working_directory` | `""` (agent default)        | `cd` here before running `command`.                                                           |
 | `done_file`       | `/tmp/anthropic-session.done` | File the runner touches when the command exits.                                               |
 | `base_url`        | `null`                        | Pin the Anthropic base URL. When null, exposed as the ephemeral `anthropic_base_url` param.   |
@@ -79,8 +80,11 @@ adjust the inner runner accordingly. Tracked, not done.
 
 ## Verifying the inner command
 
-`var.command` defaults to `ant beta:agent run`. Before relying on this
-in production, exec into your image and run `ant --help` to confirm
-that subcommand still exists in the `ant` version you ship. The
-Anthropic CLI's beta surface has churned; you may need to point
-`var.command` at a renamed runner.
+`var.command` defaults to `ant beta:worker run`, verified against
+`ant` v1.14.0. That subcommand reads the same five `ANTHROPIC_*` env
+vars this module sets (see `ant beta:worker run --help`). When you
+bump the pinned `ant` version in your image, re-run `ant --help` to
+confirm the subcommand still exists and still consumes the same
+environment variables. The Anthropic CLI's beta surface has churned
+once already (the runner was named `ant beta:agent run` before
+v1.9.0), so future renames are plausible.

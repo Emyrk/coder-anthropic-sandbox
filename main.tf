@@ -13,8 +13,8 @@ variable "agent_id" {
 
 variable "command" {
   type        = string
-  default     = "ant beta:agent run"
-  description = "Inner-side command invoked when a work item arrives. The ANTHROPIC_* env vars set by this module are in scope. Defaults to the ant Managed Agents inner runner; verify against the `ant` CLI version installed in your image before pinning to production."
+  default     = "ant beta:worker run"
+  description = "Inner-side command invoked when a work item arrives. The ANTHROPIC_* env vars set by this module are in scope. Defaults to the ant self-hosted-sandbox inner runner (`ant beta:worker run`), which reads the ANTHROPIC_SESSION_ID / WORK_ID / ENVIRONMENT_ID / ENVIRONMENT_KEY / BASE_URL env vars set here. Verify against the `ant` CLI version installed in your image before pinning to production."
 }
 
 variable "working_directory" {
